@@ -7,6 +7,7 @@ import { Search, TrendingUp, Clock, Star, Filter } from 'lucide-react';
 import SearchBar from './SearchBar';
 import PaperCard from './PaperCard';
 import { mockPapers, mockTrendingTopics, mockSearchHistory } from '../mock/mockData';
+import PaperDetailPage from '@/pages/PaperDetailPage';
 
 const SearchView = ({ onPaperLike, onPaperBookmark, onPaperView, onPaperChat }) => {
   const [searchResults, setSearchResults] = useState([]);
@@ -15,6 +16,9 @@ const SearchView = ({ onPaperLike, onPaperBookmark, onPaperView, onPaperChat }) 
   const [searchMode, setSearchMode] = useState('auto');
   const [hasSearched, setHasSearched] = useState(false);
 
+  let [load,set_load] = useState(0);
+  let [item,set_item] = useState(null);
+
   const handleSearch = async (query, mode) => {
     setIsSearching(true);
     setSearchQuery(query);
@@ -22,7 +26,7 @@ const SearchView = ({ onPaperLike, onPaperBookmark, onPaperView, onPaperChat }) 
     setHasSearched(true);
 
     // Simulate search API call
-    setTimeout(() => {
+    
       // Mock search results based on query
       const results = mockPapers.filter(paper => 
         paper.title.toLowerCase().includes(query.toLowerCase()) ||
@@ -30,24 +34,65 @@ const SearchView = ({ onPaperLike, onPaperBookmark, onPaperView, onPaperChat }) 
         paper.authors.some(author => author.toLowerCase().includes(query.toLowerCase())) ||
         paper.categories.some(cat => cat.toLowerCase().includes(query.toLowerCase()))
       );
+
+      let rfd = await fetch('http://localhost:8000/auto-search',{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          query: query
+        })
+      });
+      let data = await rfd.json();
+      let rfs = data.results;
+    
+
+    console.log(rfs);
       
       // Add relevance scores based on search mode
-      const scoredResults = results.map(paper => ({
-        ...paper,
-        searchScore: Math.random() * 0.3 + 0.7 // Mock relevance score
-      })).sort((a, b) => b.searchScore - a.searchScore);
+      let plm = [];
+      for(let j = 0;j<rfs.length;j++){
+        let rft = rfs[j];
+        let rf = rft.metadata;
+        if( rf != null){
+          let title = rf.title;
+          let abstract = rf.abstract;
+          let pl = {title:title,abstract:abstract,id:rft.arxiv_id,authors:rf.authors,categories:rf.categories,score:rft.score,published:rf.published};
+          plm.push(pl);
+        }
+      }
       
-      setSearchResults(scoredResults);
+      setSearchResults(plm);
       setIsSearching(false);
-    }, 1500);
+    
   };
 
   const handleFilterChange = (filters) => {
     setSearchMode(filters.searchMode);
   };
 
+  const front = (item)=>{
+    set_load(1);
+    set_item(item);
+  }
+
+  const back = ()=>{
+    set_load(0);
+    set_item(null);
+  }
+
+  if(load == 1){
+
+    return (
+      <PaperDetailPage paperd={item} f={back} />
+    );
+
+  }
+
   const SearchResults = () => (
     <div className="space-y-6">
+      
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">
@@ -81,6 +126,8 @@ const SearchView = ({ onPaperLike, onPaperBookmark, onPaperView, onPaperChat }) 
             onBookmark={onPaperBookmark}
             onView={onPaperView}
             onChat={onPaperChat}
+            
+            b={front}
           />
         ))
       )}

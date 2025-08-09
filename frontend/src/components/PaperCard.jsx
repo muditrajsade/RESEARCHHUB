@@ -1,176 +1,207 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader } from './ui/card';
+import { Heart, MessageCircle, Share2, ExternalLink, Calendar, Tag } from 'lucide-react';
+import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Heart, Bookmark, Eye, MessageCircle, Share, ExternalLink } from 'lucide-react';
-import { mockPapers } from '../mock/mockData';
-
-const PaperCard = ({ paper, onLike, onBookmark, onView, onChat, compact = false }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+import { Avatar, AvatarFallback } from './ui/avatar';
+import { useNavigate , createSearchParams } from 'react-router-dom';
+import { useToast } from '../hooks/use-toast';
+import PaperDetailPage from '@/pages/PaperDetailPage';
+const PaperCard = ({ paper, onLike, onComment, b}) => {
+  const [isLiked, setIsLiked] = useState(paper.isLiked);
+  const [likesCount, setLikesCount] = useState(paper.likes);
+  const navigate = useNavigate();
+  const { toast } = useToast();
   
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  const truncateText = (text, maxLength) => {
-    if (text.length <= maxLength) return text;
-    return text.slice(0, maxLength) + '...';
-  };
 
   const handleLike = (e) => {
     e.stopPropagation();
-    onLike(paper.id);
+    const newLikedState = !isLiked;
+    setIsLiked(newLikedState);
+    setLikesCount(prev => newLikedState ? prev + 1 : prev - 1);
+    
+    onLike && onLike(paper.id, newLikedState);
+    
+    toast({
+      description: newLikedState ? "Paper liked!" : "Paper unliked",
+      duration: 1500,
+    });
   };
 
-  const handleBookmark = (e) => {
+  const handleShare = (e) => {
     e.stopPropagation();
-    onBookmark(paper.id);
+    navigator.clipboard.writeText(`${window.location.origin}/paper/${paper.id}`);
+    toast({
+      description: "Link copied to clipboard!",
+      duration: 2000,
+    });
   };
 
-  const handleChat = (e) => {
-    e.stopPropagation();
-    onChat(paper.id);
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
   };
 
-  const handleView = () => {
-    onView(paper.id);
+  const getAuthorInitials = (author) => {
+    return author.split(' ').map(name => name[0]).join('').toUpperCase();
   };
+
+  
+
+  
+
+  
 
   return (
     <Card 
-      className={`w-full bg-white hover:shadow-lg transition-all duration-300 cursor-pointer border border-gray-200 ${
-        compact ? 'mb-4' : 'mb-6'
-      }`}
-      onClick={handleView}
-    >
-      <CardHeader className={compact ? 'pb-3' : 'pb-4'}>
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <h3 className={`font-semibold text-gray-900 leading-tight ${
-              compact ? 'text-base' : 'text-lg'
-            }`}>
-              {paper.title}
-            </h3>
-            <p className={`text-gray-600 mt-1 ${compact ? 'text-sm' : 'text-base'}`}>
-              {paper.authors.join(', ')}
-            </p>
-            <p className={`text-gray-500 ${compact ? 'text-xs' : 'text-sm'} mt-1`}>
-              {formatDate(paper.published)} • {paper.journal_ref || 'arXiv preprint'}
-            </p>
-          </div>
-          <div className="flex items-center space-x-2 ml-4">
-            <Badge variant="outline" className="text-xs">
-              Score: {paper.score.toFixed(2)}
-            </Badge>
-          </div>
-        </div>
-      </CardHeader>
+      className="mb-6 hover:shadow-lg transition-all duration-300 cursor-pointer border border-gray-200 bg-white"
+      onClick={()=> { 
 
-      <CardContent className={compact ? 'pt-0' : 'pt-2'}>
+        /*const query = createSearchParams({
+      paper: JSON.stringify(paper)
+    }).toString();
+
+    navigate({
+      pathname: '/paper',
+      search: `?${query}`
+    });*/
+    b(paper);
+
+
+    // ✅ Pass string with ?
+    }}
+    >
+      <CardContent className="p-6">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <Avatar className="w-10 h-10">
+              <AvatarFallback className="bg-slate-800 text-white text-sm">
+                {getAuthorInitials(paper.authors[0])}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-medium text-gray-900">{paper.authors[0]}</p>
+              <div className="flex items-center text-sm text-gray-500 space-x-2">
+                <Calendar size={14} />
+                <span>{formatDate(paper.published)}</span>
+                {paper.trending && (
+                  <Badge variant="secondary" className="ml-2 bg-orange-100 text-orange-800">
+                    Trending
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              window.open(paper.pdf_url, '_blank');
+            }}
+            className="text-gray-500 hover:text-slate-900"
+          >
+            <ExternalLink size={16} />
+          </Button>
+        </div>
+
+        {/* Title */}
+        <h2 className="text-xl font-bold text-gray-900 mb-3 leading-tight hover:text-slate-700 transition-colors">
+          {paper.title}
+        </h2>
+
         {/* Categories */}
-        <div className="flex flex-wrap gap-2 mb-3">
-          {paper.categories.map((category) => (
-            <Badge key={category} variant="secondary" className="text-xs">
+        <div className="flex flex-wrap gap-2 mb-4">
+          {paper.categories.slice(0, 3).map((category) => (
+            <Badge 
+              key={category} 
+              variant="outline" 
+              className="text-xs border-gray-300 text-gray-700 hover:bg-gray-50"
+            >
+              <Tag size={12} className="mr-1" />
               {category}
             </Badge>
           ))}
-        </div>
-
-        {/* Abstract */}
-        <div className="mb-4">
-          <p className={`text-gray-700 leading-relaxed ${compact ? 'text-sm' : 'text-base'}`}>
-            {isExpanded || compact ? 
-              paper.abstract : 
-              truncateText(paper.abstract, 200)
-            }
-          </p>
-          {!compact && paper.abstract.length > 200 && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsExpanded(!isExpanded);
-              }}
-              className="text-blue-600 hover:text-blue-800 text-sm mt-2 font-medium"
-            >
-              {isExpanded ? 'Show less' : 'Show more'}
-            </button>
+          {paper.categories.length > 3 && (
+            <Badge variant="outline" className="text-xs border-gray-300 text-gray-500">
+              +{paper.categories.length - 3} more
+            </Badge>
           )}
         </div>
 
+        {/* Abstract Preview */}
+        <p className="text-gray-700 text-sm leading-relaxed mb-4 line-clamp-3">
+          {paper.abstract.length > 280 
+            ? `${paper.abstract.substring(0, 280)}...` 
+            : paper.abstract
+          }
+        </p>
+
         {/* Summary */}
-        {paper.summary && !compact && (
-          <div className="bg-blue-50 rounded-lg p-3 mb-4">
-            <h4 className="font-medium text-blue-900 text-sm mb-1">AI Summary</h4>
-            <p className="text-blue-800 text-sm leading-relaxed">{paper.summary}</p>
+        {paper.summary && (
+          <div className="bg-slate-50 rounded-lg p-4 mb-4 border-l-4 border-slate-400">
+            <p className="text-sm font-medium text-slate-700 mb-1">AI Summary</p>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              {paper.summary.length > 200 
+                ? `${paper.summary.substring(0, 200)}...` 
+                : paper.summary
+              }
+            </p>
           </div>
         )}
 
-        {/* Stats and Actions */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <div className="flex items-center space-x-4 text-sm text-gray-600">
-            <div className="flex items-center space-x-1">
-              <Eye size={16} />
-              <span>{paper.views.toLocaleString()}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Heart size={16} />
-              <span>{paper.likes}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Bookmark size={16} />
-              <span>{paper.bookmarks}</span>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
+        {/* Actions */}
+        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+          <div className="flex items-center space-x-6">
             <Button
               variant="ghost"
               size="sm"
               onClick={handleLike}
-              className={`hover:bg-red-50 ${paper.isLiked ? 'text-red-600' : 'text-gray-600'}`}
+              className={`flex items-center space-x-2 transition-colors ${
+                isLiked 
+                  ? 'text-red-600 hover:text-red-700' 
+                  : 'text-gray-500 hover:text-red-600'
+              }`}
             >
               <Heart 
-                size={16} 
-                className={paper.isLiked ? 'fill-current' : ''} 
+                size={18} 
+                className={isLiked ? 'fill-current' : ''} 
               />
+              <span className="text-sm font-medium">{likesCount}</span>
             </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm" 
-              onClick={handleBookmark}
-              className={`hover:bg-blue-50 ${paper.isBookmarked ? 'text-blue-600' : 'text-gray-600'}`}
-            >
-              <Bookmark 
-                size={16}
-                className={paper.isBookmarked ? 'fill-current' : ''}
-              />
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleChat}
-              className="hover:bg-green-50 text-gray-600"
-            >
-              <MessageCircle size={16} />
-            </Button>
-            
+
             <Button
               variant="ghost"
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
-                window.open(`https://arxiv.org/abs/${paper.arxiv_id}`, '_blank');
+                navigate(`/paper/${paper.id}#comments`);
               }}
-              className="hover:bg-gray-50 text-gray-600"
+              className="flex items-center space-x-2 text-gray-500 hover:text-slate-900 transition-colors"
             >
-              <ExternalLink size={16} />
+              <MessageCircle size={18} />
+              <span className="text-sm font-medium">{paper.comments}</span>
             </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleShare}
+              className="flex items-center space-x-2 text-gray-500 hover:text-slate-900 transition-colors"
+            >
+              <Share2 size={18} />
+              <span className="text-sm font-medium">Share</span>
+            </Button>
+          </div>
+
+          <div className="text-xs text-gray-400">
+            Score: {(paper.score * 100).toFixed(1)}%
           </div>
         </div>
       </CardContent>

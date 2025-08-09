@@ -3,7 +3,7 @@ import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "./components/ui/toaster";
 import { useToast } from "./hooks/use-toast";
-
+import PaperDetailPage from "./pages/PaperDetailPage";
 // Components
 import Header from "./components/Header";
 import FeedView from "./components/FeedView";
@@ -218,6 +218,8 @@ function App() {
               <Toaster />
             </>
           } />
+          <Route path="/paper" element={<PaperDetailPage />} />
+          
         </Routes>
       </BrowserRouter>
     </div>

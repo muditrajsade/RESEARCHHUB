@@ -8,6 +8,7 @@ import { RefreshCw, Filter, TrendingUp, Clock, Star } from 'lucide-react';
 import PaperCard from './PaperCard';
 import { mockPapers, mockUser, mockRecommendations } from '../mock/mockData';
 
+
 const FeedView = ({ onPaperLike, onPaperBookmark, onPaperView, onPaperChat }) => {
   const [papers, setPapers] = useState(mockPapers);
   const [sortBy, setSortBy] = useState('relevance');
@@ -43,6 +44,7 @@ const FeedView = ({ onPaperLike, onPaperBookmark, onPaperView, onPaperChat }) =>
     
     return (
       <Card className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+        
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg text-blue-900 flex items-center">
