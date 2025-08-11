@@ -49,7 +49,7 @@ const Header = ({ activeTab, onTabChange, onUserProfileClick }) => {
                 <BookOpen size={24} className="text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">PaperFeed</h1>
+                <h1 className="text-xl font-bold text-gray-900">Research IT</h1>
                 <p className="text-xs text-gray-500">Research Discovery</p>
               </div>
             </div>
