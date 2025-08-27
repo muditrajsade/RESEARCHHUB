@@ -12,7 +12,7 @@ export default function HorizontalScrollCards({ id , k }) {
     // Simulate API call delay
 
     async function t(){
-        let rfd = await fetch('http://localhost:8000/similar',{
+        let rfd = await fetch('http://13.203.103.184:8000/similar',{
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

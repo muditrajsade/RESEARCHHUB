@@ -35,7 +35,7 @@ const SearchView = ({ onPaperLike, onPaperBookmark, onPaperView, onPaperChat }) 
         paper.categories.some(cat => cat.toLowerCase().includes(query.toLowerCase()))
       );
 
-      let rfd = await fetch('http://localhost:8000/auto-search',{
+      let rfd = await fetch('http://13.203.103.184:8000/auto-search',{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
