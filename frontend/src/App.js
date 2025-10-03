@@ -19,7 +19,7 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 function App() {
-  const [activeTab, setActiveTab] = useState('feed');
+  const [activeTab, setActiveTab] = useState('search');
   const [papers, setPapers] = useState(mockPapers);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatPaperId, setChatPaperId] = useState(null);
