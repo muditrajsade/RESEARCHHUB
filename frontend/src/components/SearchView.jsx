@@ -35,7 +35,10 @@ const SearchView = ({ onPaperLike, onPaperBookmark, onPaperView, onPaperChat }) 
         paper.categories.some(cat => cat.toLowerCase().includes(query.toLowerCase()))
       );
 
-      let rfd = await fetch('https://researchit.xyz/auto-search',{
+      let rfs = [];
+
+      if(mode == 'auto'){
+        let rfd = await fetch('https://researchit.xyz/auto-search',{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -45,7 +48,47 @@ const SearchView = ({ onPaperLike, onPaperBookmark, onPaperView, onPaperChat }) 
         })
       });
       let data = await rfd.json();
-      let rfs = data.results;
+      rfs = data.results;
+      }
+      else if(mode == 'semantic'){
+        let rfd = await fetch('https://researchit.xyz/search',{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          query: query
+        })
+      });
+      let data = await rfd.json();
+      rfs = data.results;
+      }
+      else if(mode == 'Title'){
+        let rfd = await fetch('https://researchit.xyz/title-search',{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          query: query
+        })
+      });
+      let data = await rfd.json();
+      rfs = data.results;
+      }
+      else if(mode == 'Personal'){
+        let rfd = await fetch('https://researchit.xyz/personalized-search',{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          query: query
+        })
+      });
+      let data = await rfd.json();
+      rfs = data.results;
+      }
     
 
     console.log(rfs);

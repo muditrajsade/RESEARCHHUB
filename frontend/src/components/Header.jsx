@@ -22,8 +22,9 @@ import {
   Menu
 } from 'lucide-react';
 import { mockUser } from '../mock/mockData';
-
+import { useNavigate } from 'react-router-dom';
 const Header = ({ activeTab, onTabChange, onUserProfileClick }) => {
+  let nvg = useNavigate();
   const [notifications] = useState([
     { id: 1, type: 'like', message: 'Someone liked your bookmark', time: '2h ago' },
     { id: 2, type: 'recommendation', message: 'New papers in AI Safety', time: '4h ago' },
@@ -79,66 +80,13 @@ const Header = ({ activeTab, onTabChange, onUserProfileClick }) => {
 
           {/* Right side - Notifications and User Menu */}
           <div className="flex items-center space-x-3">
-            {/* Notifications */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="relative">
-                  <Bell size={20} />
-                  {notifications.length > 0 && (
-                    <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs bg-red-500">
-                      {notifications.length}
-                    </Badge>
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-80">
-                <div className="p-2">
-                  <h3 className="font-semibold text-sm mb-2">Notifications</h3>
-                  {notifications.map((notification) => (
-                    <div key={notification.id} className="p-2 hover:bg-gray-50 rounded-md cursor-pointer">
-                      <p className="text-sm text-gray-900">{notification.message}</p>
-                      <p className="text-xs text-gray-500">{notification.time}</p>
-                    </div>
-                  ))}
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            
 
             {/* User Menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center space-x-2">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-blue-600 text-white text-sm">
-                      {mockUser.user_id.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="hidden sm:block text-sm font-medium text-gray-700">
-                    {mockUser.user_id}
-                  </span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <div className="p-2">
-                  <p className="text-sm font-medium">{mockUser.user_id}</p>
-                  <p className="text-xs text-gray-500">{mockUser.total_interactions} interactions</p>
-                </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={onUserProfileClick}>
-                  <User size={16} className="mr-2" />
-                  Profile & Interests
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings size={16} className="mr-2" />
-                  Settings
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-600">
-                  <LogOut size={16} className="mr-2" />
-                  Sign out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <button onClick={()=>{
+              nvg('/login')
+
+            }}>Login/signup</button>
 
             {/* Mobile Menu */}
             <DropdownMenu>
