@@ -3,14 +3,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate , createSearchParams } from 'react-router-dom';
 import PaperDetail from "./ppr";
+
 export default function HorizontalScrollCards({ id , k }) {
   const [data, setData] = useState(null);
 
-
-
   useEffect(() => {
     // Simulate API call delay
-
     async function t(){
         let rfd = await fetch('https://researchit.xyz/similar',{
       method: 'POST',
@@ -46,16 +44,9 @@ export default function HorizontalScrollCards({ id , k }) {
 
     t();
 
-
-    
-    
-
   }, []);
 
   const loadingSkeletons = Array(5).fill(null);
-
-  
-
 
   return (
     <div className="w-full overflow-x-auto">
@@ -64,20 +55,16 @@ export default function HorizontalScrollCards({ id , k }) {
           ? data.map((item, index) => (
               <Card
                 key={`${id}-${index}`}
-                className="min-w-[250px] flex-shrink-0 shadow-md"
+                // 👇 MODIFIED CLASS NAMES FOR CLICK EFFECT 👇
+                className="min-w-[250px] flex-shrink-0 shadow-md **cursor-pointer transition-all duration-150 hover:shadow-lg hover:scale-[1.02] active:bg-gray-100 active:scale-[0.98]**"
                 onClick={()=> { 
-                
-                        k(item);
-                
-                    // ✅ Pass string with ?
-                    }}
-                
+                    k(item);
+                }}
               >
                 <CardContent className="p-4">
                   <h3 className="font-semibold text-gray-900 mb-2">
                     {item.title}
                   </h3>
-                 
                 </CardContent>
               </Card>
             ))
